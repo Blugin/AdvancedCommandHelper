@@ -37,7 +37,7 @@ abstract class AdvancedCommand extends Command implements PluginOwned{
 
 	public function prepare() : void{}
 
-	public function register(CommandMap $commandMap) : bool{
+	final public function register(CommandMap $commandMap) : bool{
 		if(parent::register($commandMap)){
 			AdvancedCommandHelper::getInstance()->addCommand($this);
 			return true;

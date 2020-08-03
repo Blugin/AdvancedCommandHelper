@@ -67,7 +67,7 @@ class AdvancedCommandHelper extends PluginBase implements Listener{
 					$this->addParameter(1, new Vector3Parameter("position", false));
 				}
 
-				public function onRun(CommandSender $sender, string $commandLabel, array $args): bool{
+				public function onRun(CommandSender $sender, string $commandLabel, array $args) : bool{
 					$sender->sendMessage(implode(" ", $args));
 					return true;
 				}
