@@ -2,6 +2,6 @@ name: AdvancedCommandHelper
 author: alvin0319
 main: alvin0319\AdvancedCommandHelper\AdvancedCommandHelper
 version: 1.0.0
-api: 4.0.0
+api: 3.0.0
 
 mcpe-protocol: 407

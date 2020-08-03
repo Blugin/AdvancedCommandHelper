@@ -20,7 +20,7 @@ namespace alvin0319\AdvancedCommandHelper\command\parameter;
 
 use alvin0319\AdvancedCommandHelper\command\parameter\enum\Enum;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
+use pocketmine\network\mcpe\protocol\types\CommandParameter;
 
 abstract class Parameter{
 
@@ -53,13 +53,9 @@ abstract class Parameter{
 	}
 
 	public function toCommandParameter() : CommandParameter{
-		if($this->enum instanceof Enum){
-			$parameter = CommandParameter::enum($this->name, $this->enum->toEnum(), 0, $this->optional);
-			$parameter->paramType = AvailableCommandsPacket::ARG_FLAG_VALID | $this->getNetworkType();
-			return $parameter;
-		}else{
-			return CommandParameter::standard($this->name, AvailableCommandsPacket::ARG_FLAG_VALID | $this->getNetworkType(), 0, $this->optional);
-		}
+		$parameter = new CommandParameter();
+		[$parameter->paramName, $parameter->paramType, $parameter->isOptional, $parameter->enum] = [$this->name, AvailableCommandsPacket::ARG_FLAG_VALID | $this->getNetworkType(), $this->optional, ($this->enum instanceof Enum) ? $this->enum->toEnum() : null];
+		return $parameter;
 	}
 
 	abstract public function getNetworkType() : int;

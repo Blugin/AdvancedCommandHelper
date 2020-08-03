@@ -20,7 +20,7 @@ namespace alvin0319\AdvancedCommandHelper\command\parameter;
 
 use alvin0319\AdvancedCommandHelper\command\parameter\enum\Enum;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\player\Player;
+use pocketmine\Player;
 use pocketmine\Server;
 use function array_map;
 use function array_values;

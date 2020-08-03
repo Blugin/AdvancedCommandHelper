@@ -18,7 +18,7 @@
 declare(strict_types=1);
 namespace alvin0319\AdvancedCommandHelper\command\parameter\enum;
 
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\CommandEnum;
 use function array_values;
 
 class Enum{
@@ -33,10 +33,12 @@ class Enum{
     }
 
     public function toEnum() : CommandEnum{
-        return new CommandEnum($this->name, array_values($this->enumValues));
+    	$enum = new CommandEnum();
+    	[$enum->enumName, $enum->enumValues] = [$this->name, $this->enumValues];
+    	return $enum;
     }
 
     public static function fromEnum(CommandEnum $enum) : Enum{
-        return new Enum($enum->getName(), $enum->getValues());
+        return new Enum($enum->enumName, $enum->enumValues);
     }
 }

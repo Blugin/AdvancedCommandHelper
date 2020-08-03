@@ -30,21 +30,26 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
-use pocketmine\player\Player;
+use pocketmine\network\mcpe\protocol\types\CommandParameter;
+use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
-use pocketmine\utils\SingletonTrait;
 use function implode;
 
 class AdvancedCommandHelper extends PluginBase implements Listener{
-	use SingletonTrait;
+
+	/** @var AdvancedCommandHelper */
+	private static $instance;
 
 	/** @var AdvancedCommand[] */
 	protected $commands = [];
 
 	public function onLoad() : void{
-		self::setInstance($this);
+		self::$instance = $this;
+	}
+
+	public static function getInstance() : AdvancedCommandHelper{
+		return self::$instance;
 	}
 
 	public function onEnable() : void{
@@ -84,32 +89,27 @@ class AdvancedCommandHelper extends PluginBase implements Listener{
 	 * @priority HIGHEST
 	 */
 	public function onDataPacketSend(DataPacketSendEvent $event) : void{
-		$packets = $event->getPackets();
-		$packet = $packets[0] ?? null;
-		$targets = $event->getTargets();
-		$networkSession = $targets[0] ?? null;
+		$packet = $event->getPacket();
+		$player = $event->getPlayer();
 		if($packet instanceof AvailableCommandsPacket){
-			if($networkSession instanceof NetworkSession){
-				$player = $networkSession->getPlayer();
-				if($player instanceof Player){
-					foreach($this->commands as $name => $command){
-						if(isset($packet->commandData[$command->getName()])){
-							$parameters = $command->getParameters();
-							/** @var CommandParameter[][] $overloads */
-							$overloads = [];
-							foreach($parameters as $position => $parameterList){
-								if(!isset($overloads[$position])){
-									$overloads[$position] = [];
-								}
-								foreach($parameterList as $parameter){
-									$parameter->onAdded();
-									$overloads[$position][] = $parameter->toCommandParameter();
-								}
+			if($player instanceof Player){
+				foreach($this->commands as $name => $command){
+					if(isset($packet->commandData[$command->getName()])){
+						$parameters = $command->getParameters();
+						/** @var CommandParameter[][] $overloads */
+						$overloads = [];
+						foreach($parameters as $position => $parameterList){
+							if(!isset($overloads[$position])){
+								$overloads[$position] = [];
 							}
-							$data = $packet->commandData[$command->getName()];
-							$data->overloads = $overloads;
-							$packet->commandData[$command->getName()] = $data;
+							foreach($parameterList as $parameter){
+								$parameter->onAdded();
+								$overloads[$position][] = $parameter->toCommandParameter();
+							}
 						}
+						$data = $packet->commandData[$command->getName()];
+						$data->overloads = $overloads;
+						$packet->commandData[$command->getName()] = $data;
 					}
 				}
 			}
@@ -119,11 +119,11 @@ class AdvancedCommandHelper extends PluginBase implements Listener{
 
 	public function onPlayerJoin(PlayerJoinEvent $_) : void{
 		foreach($this->getServer()->getOnlinePlayers() as $player)
-			$player->getNetworkSession()->syncAvailableCommands();
+			$player->sendCommandData();
 	}
 
 	public function onPlayerQuit(PlayerQuitEvent $_) : void{
 		foreach($this->getServer()->getOnlinePlayers() as $player)
-			$player->getNetworkSession()->syncAvailableCommands();
+			$player->sendCommandData();
 	}
 }
