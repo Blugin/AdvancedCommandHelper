@@ -28,10 +28,8 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketSendEvent;
-use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
-use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
@@ -85,30 +83,29 @@ class AdvancedCommandHelper extends PluginBase implements Listener{
 	 */
 	public function onDataPacketSend(DataPacketSendEvent $event) : void{
 		$packets = $event->getPackets();
-		$packet = $packets[0] ?? null;
 		$targets = $event->getTargets();
-		$networkSession = $targets[0] ?? null;
-		if($packet instanceof AvailableCommandsPacket){
-			if($networkSession instanceof NetworkSession){
-				$player = $networkSession->getPlayer();
-				if($player instanceof Player){
-					foreach($this->commands as $name => $command){
-						if(isset($packet->commandData[$command->getName()])){
-							$parameters = $command->getParameters();
-							/** @var CommandParameter[][] $overloads */
-							$overloads = [];
-							foreach($parameters as $position => $parameterList){
-								if(!isset($overloads[$position])){
-									$overloads[$position] = [];
+		foreach($packets as $packet){
+			foreach($targets as $networkSession){
+				if(($player = $networkSession->getPlayer()) !== null and $player->isConnected()){
+					if($packet instanceof AvailableCommandsPacket){
+						foreach($this->commands as $name => $command){
+							if(isset($packet->commandData[$command->getName()])){
+								$parameters = $command->getParameters();
+								/** @var CommandParameter $overloads */
+								$overloads = [];
+								foreach($parameters as $position => $parameterList){
+									if(!isset($overloads[$position])){
+										$overloads[$position] = [];
+									}
+									foreach($parameterList as $parameter){
+										$parameter->onAdded();
+										$overloads[$position][] = $parameter->toCommandParameter();
+									}
 								}
-								foreach($parameterList as $parameter){
-									$parameter->onAdded();
-									$overloads[$position][] = $parameter->toCommandParameter();
-								}
+								$data = $packet->commandData[$command->getName()];
+								$data->overloads = $overloads;
+								$packet->commandData[$command->getName()] = $data;
 							}
-							$data = $packet->commandData[$command->getName()];
-							$data->overloads = $overloads;
-							$packet->commandData[$command->getName()] = $data;
 						}
 					}
 				}
