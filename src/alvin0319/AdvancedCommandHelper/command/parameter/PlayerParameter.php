@@ -35,7 +35,7 @@ class PlayerParameter extends Parameter{
 	public function setOnlinePlayers() : void{
 		$enum = new Enum("target", array_map(function(Player $player) : string{
 			if(strpos($player->getName(), " ") !== false){
-				return '"' . $player->getName() . '"';
+				return "\"{$player->getName()}\"";
 			}else{
 				return $player->getName();
 			}

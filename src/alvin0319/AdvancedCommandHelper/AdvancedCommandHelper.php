@@ -86,7 +86,7 @@ class AdvancedCommandHelper extends PluginBase implements Listener{
 		$targets = $event->getTargets();
 		foreach($packets as $packet){
 			foreach($targets as $networkSession){
-				if(($player = $networkSession->getPlayer()) !== null and $player->isConnected()){
+				if(($player = $networkSession->getPlayer()) !== null && $player->isConnected()){
 					if($packet instanceof AvailableCommandsPacket){
 						foreach($this->commands as $name => $command){
 							if(isset($packet->commandData[$command->getName()])){
