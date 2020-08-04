@@ -61,7 +61,7 @@ class AdvancedCommandHelper extends PluginBase implements Listener{
 					parent::__construct("test", "A test command");
 				}
 
-				public function getOwningPlugin() : Plugin{
+				public function getPlugin() : Plugin{
 					return AdvancedCommandHelper::getInstance();
 				}
 

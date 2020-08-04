@@ -23,9 +23,9 @@ use alvin0319\AdvancedCommandHelper\command\parameter\Parameter;
 use pocketmine\command\Command;
 use pocketmine\command\CommandMap;
 use pocketmine\command\CommandSender;
-use pocketmine\plugin\PluginOwned;
+use pocketmine\command\PluginIdentifiableCommand;
 
-abstract class AdvancedCommand extends Command implements PluginOwned{
+abstract class AdvancedCommand extends Command implements PluginIdentifiableCommand{
 
 	/** @var Parameter[][] */
 	protected $parameters = [];
